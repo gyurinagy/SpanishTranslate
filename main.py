@@ -1,50 +1,43 @@
-import urllib.request
-import bs4 as bs
+from bs4 import BeautifulSoup
+import requests
 
 # READING THE WORDS AND CREATING A LIST FOR THEM
-def readingEnglist():
-    list=[]
-    file = open("englishWords.txt","r")
-    for word in file:
-        list.append(str(word).strip())
-    file.close()
+def readEnglishWords():
+    list = []
+    with open("englishWords.txt","r") as file:
+        for word in file:
+            list.append(str(word).strip())
+    
     return list
 
+def souping(doc = "index.html"):
+    return BeautifulSoup(doc,"html.parser")
+
 # CREATING DICTIONARY
-def spanishTranslate(list):
-    spanish_list=[]
+def translateToSpanish(list):
+    spanishList = []
+    baseUrl = "https://www.spanishdict.com/translate/"
+
     for item in list:
-        base_url = "https://www.spanishdict.com/translate/"
-        base_url += item
+        url = baseUrl + item + "?langFrom=en"
 
-        source = urllib.request.urlopen(base_url)
-        client = source.read()
-        soup = bs.BeautifulSoup(client, 'html.parser')
-        source.close()
+        result = requests.get(url)
+        doc = souping(result.text)
 
-        translates = soup.findAll("div",{"class":"_2u6CgGQs"})
-
+        translatedWords = doc.findAll("div", {"class":"_2qDMaLCj"})
     
-        spanish_container = []
-        for container in translates:
-            spanish_container.append(container.a.text)
-        spanish_list.append(spanish_container)
-    return spanish_list
+        spanishContainer = []
+        for container in translatedWords:
+            spanishContainer.append(container.a.text)
 
-    #     # WE ONLY WANT TO READ THE ENGLISH - SPANISH
-
-    #     if len(spanish)==1:
-    #         containers = spanish[0].findAll("div", {"id": "quickdef1-en"})
-    #     else:
-    #         containers = soup.findAll("div", {"class": "quickdefWrapper--HELyO"})     
-
-
+        spanishList.append(spanishContainer)
+    return spanishList
 
 def main():
-    english_list = readingEnglist()
-    spanish_list = spanishTranslate(english_list)
+    englishWords = readEnglishWords()
+    spanishWords = translateToSpanish(englishWords)
 
-    for a in spanish_list:
-        print(a)
+    for engWords, esWords in zip(englishWords,spanishWords):
+       print(engWords,"\t - ",", ".join(esWords))
 
 main()
