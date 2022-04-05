@@ -5,9 +5,7 @@ import requests
 def readEnglishWords():
     list = []
     with open("englishWords.txt","r") as file:
-        for word in file:
-            list.append(str(word).strip())
-    
+        list.extend(str(word).strip() for word in file)
     return list
 
 def souping(doc = "index.html"):
@@ -25,11 +23,8 @@ def translateToSpanish(list):
         doc = souping(result.text)
 
         translatedWords = doc.findAll("div", {"class":"_2qDMaLCj"})
-    
-        spanishContainer = []
-        for container in translatedWords:
-            spanishContainer.append(container.a.text)
 
+        spanishContainer = [container.a.text for container in translatedWords]
         spanishList.append(spanishContainer)
     return spanishList
 
