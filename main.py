@@ -1,10 +1,11 @@
+import sys 
 from bs4 import BeautifulSoup
 import requests
 
 # READING THE WORDS AND CREATING A LIST FOR THEM
 def readEnglishWords():
     list = []
-    with open("englishWords.txt","r") as file:
+    with open(sys.argv[1],"r") as file:
         list.extend(str(word).strip() for word in file)
     return list
 
